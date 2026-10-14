@@ -314,7 +314,12 @@ fn view_map(s: &mut Session, a: &Value) -> Result<Value, String> {
 /// unparseable line. A transport that waits for the server's reply — the relay client — needs
 /// this to know a notification gets none.
 pub fn expects_reply(message: &str) -> bool {
-    let replies = |m: &Value| m.get("id").is_some() && m.get("result").is_none() && m.get("error").is_none();
+    // A non-object is an INVALID_REQUEST the server answers (`handle_value`), so it expects a
+    // reply too; an object answers when it has an id and is neither a result nor an error.
+    let replies = |m: &Value| match m.as_object() {
+        None => true,
+        Some(o) => o.contains_key("id") && !o.contains_key("result") && !o.contains_key("error"),
+    };
     match serde_json::from_str::<Value>(message) {
         Ok(Value::Array(batch)) => batch.is_empty() || batch.iter().any(replies),
         Ok(v) => replies(&v),

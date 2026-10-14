@@ -398,8 +398,9 @@ pub fn command_search(app: &mut RustGisApp, ctx: &egui::Context) {
             ("ui.exportMap", "Export Map…", "Publish › Output"),
             ("ui.checkUpdate", "Check for Updates…", "Help › Help"),
         ] {
-            // The web app always serves the latest release, and has no Check for Updates button.
-            if id == "ui.checkUpdate" && cfg!(target_arch = "wasm32") {
+            // The web app always serves the latest release (no Check for Updates button) and is
+            // one process a loopback relay could not reach (`ui.mcpRelay` is desktop only).
+            if matches!(id, "ui.checkUpdate" | "ui.mcpRelay") && cfg!(target_arch = "wasm32") {
                 continue;
             }
             if ql.is_empty() || label.to_lowercase().contains(&ql) || tl!(label).to_lowercase().contains(&ql) {

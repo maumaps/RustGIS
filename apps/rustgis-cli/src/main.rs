@@ -207,9 +207,22 @@ fn attach_port(args: &[String]) -> Result<Option<u16>, String> {
 /// process relays the protocol only. `--yes` goes along with the connection, so the app applies
 /// the same file and network refusals as the private server does here.
 fn attach(port: u16, allow_access: bool) -> Result<(), String> {
+    // The relay wrote the run's token where only this user can read it; carrying it in the
+    // attach message is what proves this is the user's own client, so nothing is pasted.
+    let token_path = rustgis_assistant::relay::token_path(port);
+    let token = std::fs::read_to_string(&token_path)
+        .map_err(|e| format!("{}: {e}; start RustGIS's MCP Relay command first", token_path.display()))?
+        .lines()
+        .map(str::trim)
+        .find(|l| !l.is_empty())
+        .unwrap_or_default()
+        .to_string();
+    if token.is_empty() {
+        return Err(format!("{} holds no token; restart RustGIS's MCP Relay command", token_path.display()));
+    }
     let mut stream = std::net::TcpStream::connect(("127.0.0.1", port))
         .map_err(|e| format!("nothing is listening on 127.0.0.1:{port} ({e}); start RustGIS's MCP Relay command first"))?;
-    let hello = json!({"jsonrpc": "2.0", "method": "rustgis/attach", "params": {"access": allow_access}});
+    let hello = json!({"jsonrpc": "2.0", "method": "rustgis/attach", "params": {"access": allow_access, "token": token}});
     writeln!(stream, "{hello}").map_err(|e| format!("telling the app what --yes allows: {e}"))?;
     eprintln!(
         "rustgis-cli: MCP server ready (the open RustGIS app at 127.0.0.1:{port}; file and network access {})",

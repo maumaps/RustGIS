@@ -397,6 +397,10 @@ pub struct RustGisApp {
     /// already has open, started by the `ui.mcpRelay` command and off until then.
     #[cfg(not(target_arch = "wasm32"))]
     pub relay: Option<rustgis_assistant::relay::Relay>,
+    /// The frame's `egui::Context`, kept so `ui.mcpRelay` can hand the relay its wake callback:
+    /// a queued message asks for a repaint, or it waits for the user to move the mouse.
+    #[cfg(not(target_arch = "wasm32"))]
+    frame_ctx: Option<egui::Context>,
     /// Extra font faces installed with the interface fonts: (name, face, region). The current
     /// language's region comes right after the interface font, so its glyph shapes win; the others
     /// are last-resort fallbacks. Faces are shared, so reinstalling copies nothing.
@@ -444,6 +448,8 @@ impl RustGisApp {
             services: Services::default(),
             #[cfg(not(target_arch = "wasm32"))]
             relay: None,
+            #[cfg(not(target_arch = "wasm32"))]
+            frame_ctx: None,
             extra_fonts: Vec::new(),
             installed_region: None,
             fonts_dirty: false,
@@ -987,6 +993,12 @@ impl RustGisApp {
                         .unwrap_or(rustgis_assistant::relay::DEFAULT_PORT);
                     match rustgis_assistant::relay::Relay::start(port) {
                         Ok(relay) => {
+                            // The relay only queues; the frame runs the messages, so a queued
+                            // message asks for the frame that will run it.
+                            if let Some(ctx) = &self.frame_ctx {
+                                let ctx = ctx.clone();
+                                relay.set_wake(Box::new(move || ctx.request_repaint()));
+                            }
                             let text = i18n::fmt("MCP relay listening on 127.0.0.1:{port}", &[("port", &relay.port().to_string())]);
                             self.session.notify(text, false);
                             self.relay = Some(relay);
@@ -1946,8 +1958,11 @@ impl RustGisApp {
         // The MCP relay: what attached agents sent runs here, on this session, before the frame
         // draws (Session lives on this thread; the listener only queues messages).
         #[cfg(not(target_arch = "wasm32"))]
-        if let Some(relay) = &self.relay {
-            relay.poll(&mut self.session);
+        {
+            self.frame_ctx = Some(ctx.clone());
+            if let Some(relay) = &self.relay {
+                relay.poll(&mut self.session);
+            }
         }
         // Fonts installed last frame are active now.
         self.fonts_pending = false;
