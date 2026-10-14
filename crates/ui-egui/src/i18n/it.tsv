@@ -1864,3 +1864,6 @@ Zoom To World	Zoom al mondo
 {url}: only HTTPS addresses, or plain HTTP on this computer or network, are allowed	{url}: sono consentiti solo indirizzi HTTPS, o HTTP semplice su questo computer o su questa rete
 © OpenStreetMap contributors	© Collaboratori di OpenStreetMap
 ⌘K	⌘K
+MCP Relay	Relay MCP
+MCP relay stopped	Relay MCP arrestato
+MCP relay listening on 127.0.0.1:{port}	Relay MCP in ascolto su 127.0.0.1:{port}

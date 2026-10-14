@@ -1864,3 +1864,6 @@ Zoom To World	世界にズーム
 {url}: only HTTPS addresses, or plain HTTP on this computer or network, are allowed	{url}: 使用できるのは HTTPS のアドレス、またはこのコンピューターかネットワーク上の通常の HTTP のみです
 © OpenStreetMap contributors	© OpenStreetMap contributors
 ⌘K	⌘K
+MCP Relay	MCPリレー
+MCP relay stopped	MCPリレーを停止しました
+MCP relay listening on 127.0.0.1:{port}	MCPリレーが127.0.0.1:{port}で待機中

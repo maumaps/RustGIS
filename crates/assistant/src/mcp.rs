@@ -310,6 +310,19 @@ fn view_map(s: &mut Session, a: &Value) -> Result<Value, String> {
     }))
 }
 
+/// Whether the server answers this message: a request (an id, not a response to one) or an
+/// unparseable line. A transport that waits for the server's reply — the relay client — needs
+/// this to know a notification gets none.
+pub fn expects_reply(message: &str) -> bool {
+    let replies = |m: &Value| m.get("id").is_some() && m.get("result").is_none() && m.get("error").is_none();
+    match serde_json::from_str::<Value>(message) {
+        Ok(Value::Array(batch)) => batch.is_empty() || batch.iter().any(replies),
+        Ok(v) => replies(&v),
+        // Not JSON: the server answers with a parse error.
+        Err(_) => true,
+    }
+}
+
 fn error_value(id: &Value, code: i64, message: &str) -> Value {
     json!({"jsonrpc": "2.0", "id": id, "error": {"code": code, "message": message}})
 }

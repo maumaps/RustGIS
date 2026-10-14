@@ -389,6 +389,7 @@ pub fn command_search(app: &mut RustGisApp, ctx: &egui::Context) {
             ("ui.searchOpenData", "Search Open Data…", "Home › Add"),
             ("ui.pane.sources", "Data Sources Pane", "View › Windows"),
             ("ui.plugins", "Plugin Manager…", "Plugins"),
+            ("ui.mcpRelay", "MCP Relay", "Help › Help"),
             ("ui.pane.geoprocessing", "Tools Pane", "View › Windows"),
             ("ui.pane.symbology", "Symbology Pane", "Style › Drawing"),
             ("ui.pane.assistant", "AI Assistant", "Analyze › AI"),

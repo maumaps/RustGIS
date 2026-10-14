@@ -1864,3 +1864,6 @@ Zoom To World	Thu phóng tới thế giới
 {url}: only HTTPS addresses, or plain HTTP on this computer or network, are allowed	{url}: chỉ cho phép địa chỉ HTTPS, hoặc HTTP thường trên máy tính hay mạng này
 © OpenStreetMap contributors	© Những người đóng góp OpenStreetMap
 ⌘K	⌘K
+MCP Relay	Chuyển tiếp MCP
+MCP relay stopped	Đã dừng chuyển tiếp MCP
+MCP relay listening on 127.0.0.1:{port}	Chuyển tiếp MCP đang nghe tại 127.0.0.1:{port}

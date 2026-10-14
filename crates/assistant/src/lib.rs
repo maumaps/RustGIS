@@ -16,6 +16,8 @@ pub mod docs;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod http;
 pub mod mcp;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod relay;
 pub mod provider;
 #[cfg(test)]
 mod tests;

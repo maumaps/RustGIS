@@ -1864,3 +1864,6 @@ Zoom To World	გადიდება მსოფლიოზე
 {url}: only HTTPS addresses, or plain HTTP on this computer or network, are allowed	{url}: დაშვებულია მხოლოდ HTTPS მისამართები ან უბრალო HTTP ამ კომპიუტერზე თუ ქსელში
 © OpenStreetMap contributors	© OpenStreetMap contributors
 ⌘K	⌘K
+MCP Relay	MCP რელე
+MCP relay stopped	MCP რელე გაჩერებულია
+MCP relay listening on 127.0.0.1:{port}	MCP რელე უსმენს 127.0.0.1:{port}-ს

@@ -1864,3 +1864,6 @@ Zoom To World	Zoomen naar wereld
 {url}: only HTTPS addresses, or plain HTTP on this computer or network, are allowed	{url}: alleen HTTPS-adressen, of gewoon HTTP op deze computer of dit netwerk, zijn toegestaan
 © OpenStreetMap contributors	© OpenStreetMap-bijdragers
 ⌘K	⌘K
+MCP Relay	MCP-relay
+MCP relay stopped	MCP-relay gestopt
+MCP relay listening on 127.0.0.1:{port}	MCP-relay luistert op 127.0.0.1:{port}

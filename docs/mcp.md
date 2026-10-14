@@ -9,6 +9,7 @@ attribute tables, looks at the map as an image and looks things up in this docum
 rustgis-cli mcp --sample                 # the World Atlas sample
 rustgis-cli mcp --data parcels.geojson   # your own data (--data more than once, or --project p.rgis)
 rustgis-cli mcp --yes                    # also allow file and network access
+rustgis-cli mcp --attach [--yes]           # the desktop app that is already open (its MCP Relay)
 ```
 
 The server talks over standard input and output, so you don't start it yourself: you tell your
@@ -64,6 +65,36 @@ Then ask, for example:
 - "Buffer the cities by 200 km, colour the result by population and show me the map."
 - "Load ~/data/parcels.geojson, label the parcels with their owner and export the map to
   parcels.png." (this reads and writes files, so it needs `--yes`)
+
+## Managing the open desktop app
+
+By default each agent gets its own project in memory. To drive the project that is already
+open in the desktop app instead, start its relay listener first: in RustGIS, open Command
+Search (Ctrl+K), run **MCP Relay** — the status bar confirms `MCP relay listening on
+127.0.0.1:8767`. The listener remains active until the app closes.
+
+```sh
+rustgis-cli mcp --attach                 # the open app on 127.0.0.1:8767
+rustgis-cli mcp --attach 9000 --yes      # another port, with file and network access
+```
+
+```json
+{
+  "mcpServers": {
+    "rustgis-app": {
+      "command": "rustgis-cli",
+      "args": ["mcp", "--attach", "--yes"]
+    }
+  }
+}
+```
+
+The relay speaks the same protocol as above, so every tool works — `view_map` shows the open
+map, `run_command` runs on it, each run one undo step. Two things change: the project is
+yours, not the agent's own (opening, replacing, undoing and saving act on the open project),
+and the listener is off until you start it. It binds 127.0.0.1 only, on port 8767 unless the
+command names another (`ui.mcpRelay {"port": 9000}`); GeoLibre's 8766 is untouched. File and
+network commands still need `--yes`, under the same policy as the private server.
 
 ## Tools
 
