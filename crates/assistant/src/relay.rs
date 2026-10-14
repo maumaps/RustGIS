@@ -210,26 +210,33 @@ fn connection(stream: TcpStream, shared: Arc<Shared>) {
         if line.trim().is_empty() {
             continue;
         }
-        if looks_like_http(&line) {
+        if !attached && looks_like_http(&line) {
             log::warn!("MCP relay: dropped a connection that spoke HTTP, not the relay protocol");
             return;
         }
-        let Ok(msg) = serde_json::from_str::<Value>(&line) else {
-            // Not JSON: the connection is not the relay protocol, and the server would only
-            // answer it with a parse error — drop it instead of playing along.
-            return;
+        // Before the attach the connection has proven nothing, so a bad line drops it. After
+        // a valid attach the line belongs to the client: a non-JSON line is queued like any
+        // other, and `Server::handle` answers the parse error while the session stays open.
+        let msg = match serde_json::from_str::<Value>(&line) {
+            Ok(msg) => Some(msg),
+            Err(_) if attached => None,
+            Err(_) => return,
         };
-        // Every connection's first non-empty message must be a valid attach: the run's token,
-        // or the connection goes. Nothing else a line could say is believed.
-        if !attached || msg.get("method").and_then(Value::as_str) == Some(ATTACH) {
-            let ok = msg.get("method").and_then(Value::as_str) == Some(ATTACH)
-                && msg.get("params").and_then(|p| p.get("token")).and_then(Value::as_str) == Some(shared.token.as_str());
-            if !ok {
-                return;
+        if let Some(msg) = &msg {
+            // The first non-empty message must be a valid attach: the run's token, or the
+            // connection goes. Nothing else a line could say is believed. A repeat attach
+            // still carries the token (it may update what the connection allows).
+            let is_attach = msg.get("method").and_then(Value::as_str) == Some(ATTACH);
+            if !attached || is_attach {
+                let ok = is_attach
+                    && msg.get("params").and_then(|p| p.get("token")).and_then(Value::as_str) == Some(shared.token.as_str());
+                if !ok {
+                    return;
+                }
+                allow_access = msg.get("params").and_then(|p| p.get("access")).and_then(Value::as_bool).unwrap_or(false);
+                attached = true;
+                continue;
             }
-            allow_access = msg.get("params").and_then(|p| p.get("access")).and_then(Value::as_bool).unwrap_or(false);
-            attached = true;
-            continue;
         }
         let (tx, rx) = sync_channel(1);
         {
@@ -401,6 +408,29 @@ mod tests {
         let mut line = String::new();
         assert_eq!(input.read_line(&mut line).unwrap(), 0, "the relay kept an HTTP request open: {line}");
         assert_eq!(relay.poll(&mut s), 0, "an HTTP request queued a message");
+        let _ = std::fs::remove_file(token_path(relay.port()));
+    }
+
+    /// After a valid attach a non-JSON line is not a protocol violation of its own: the server
+    /// answers it with a parse error and the same connection keeps serving requests.
+    #[test]
+    fn relay_returns_parse_error_after_attach_and_stays_usable() {
+        let relay = Relay::start(0).unwrap();
+        let mut s = sample();
+        let mut client = TcpStream::connect(("127.0.0.1", relay.port())).unwrap();
+        attach(&mut client, &relay, false);
+        writeln!(client, "this is not JSON").unwrap();
+        client.flush().unwrap();
+        settle(&relay, &mut s);
+        let parse_error = reply(&client);
+        assert_eq!(parse_error["error"]["code"], -32700, "{parse_error}");
+        // The same connection still answers a real request afterwards.
+        let ping = json!({"jsonrpc": "2.0", "id": 7, "method": "ping"});
+        writeln!(client, "{ping}").unwrap();
+        client.flush().unwrap();
+        settle(&relay, &mut s);
+        let pong = reply(&client);
+        assert_eq!(pong["id"], 7, "{pong}");
         let _ = std::fs::remove_file(token_path(relay.port()));
     }
 
