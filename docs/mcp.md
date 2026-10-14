@@ -6,10 +6,10 @@ maps with it. The agent opens data, runs any RustGIS command or geoprocessing to
 attribute tables, looks at the map as an image and looks things up in this documentation.
 
 ```sh
-rustgis-cli mcp --sample                 # the World Atlas sample
-rustgis-cli mcp --data parcels.geojson   # your own data (--data more than once, or --project p.rgis)
-rustgis-cli mcp --yes                    # also allow file and network access
-rustgis-cli mcp --attach [--yes]           # the desktop app that is already open (its MCP Relay)
+rustgis-cli mcp --sample                # the World Atlas sample
+rustgis-cli mcp --data parcels.geojson  # your own data (--data more than once, or --project p.rgis)
+rustgis-cli mcp --yes                   # also allow file and network access
+rustgis-cli mcp --attach [--yes]        # the desktop app that is already open (its MCP Relay)
 ```
 
 The server talks over standard input and output, so you don't start it yourself: you tell your

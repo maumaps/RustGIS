@@ -1,7 +1,7 @@
 ---
 name: rustgis
 description: |
-  Install and use RustGIS from an external agent. Trigger on installing RustGIS locally for the user, rustgis-cli, RustGIS MCP server setup for Claude, Codex, Cursor or VS Code, and managing the already-open RustGIS desktop app or its MCP Relay. Covers platform-specific installation, release checksum verification, MCP registration, and attaching to the open app to inspect layers, run commands and geoprocessing, view the map and save results.
+  Use RustGIS from an agent: list layers, read features, view the map, run commands and geoprocessing, and save. Trigger for the already-open desktop app (MCP Relay, then rustgis-cli mcp --attach), a headless project, or rustgis-cli MCP in Claude, Codex, Cursor, or VS Code. Installing RustGIS is a trigger, not the task.
 ---
 
 # RustGIS
