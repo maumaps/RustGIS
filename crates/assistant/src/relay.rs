@@ -181,7 +181,6 @@ pub fn token_path(port: u16) -> PathBuf {
 /// and file must be this user's: a regular file, not a symlink, both owned by the user running
 /// this process, and private to that user (no group or other access).
 pub fn read_token(port: u16) -> Result<String, String> {
-    let dir = token_dir();
     let path = token_path(port);
     let hint = "start the MCP relay in the app (command palette: ui.mcpRelay) first";
     let meta = std::fs::symlink_metadata(&path).map_err(|e| format!("{}: {e} ({hint})", path.display()))?;
@@ -191,6 +190,7 @@ pub fn read_token(port: u16) -> Result<String, String> {
     #[cfg(unix)]
     {
         use std::os::unix::fs::{MetadataExt, PermissionsExt};
+        let dir = token_dir();
         let dir_meta = std::fs::symlink_metadata(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
         let me = rustix::process::geteuid().as_raw();
         if !dir_meta.is_dir() || dir_meta.uid() != me || meta.uid() != me {
@@ -213,6 +213,8 @@ pub fn read_token(port: u16) -> Result<String, String> {
 /// readable by anyone else is refused, not repaired.
 fn private_dir() -> Result<PathBuf, String> {
     let dir = token_dir();
+    // Only Unix sets a mode on the builder; elsewhere it stays as created.
+    #[cfg_attr(not(unix), allow(unused_mut))]
     let mut builder = std::fs::DirBuilder::new();
     #[cfg(unix)]
     std::os::unix::fs::DirBuilderExt::mode(&mut builder, 0o700);
