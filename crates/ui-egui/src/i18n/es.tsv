@@ -1,6 +1,7 @@
 # es interface catalog: English<TAB>translation
  by 	 por
 (b4-b3)/(b4+b3)	(b4-b3)/(b4+b3)
+(filtered)	(filtrada)
 00:00 UTC	00:00 UTC
 06:00 UTC	06:00 UTC
 12:00 UTC	12:00 UTC
@@ -414,7 +415,7 @@ Data Management	Administración de datos
 Data Stores	Almacenes de datos
 Data type	Tipo de datos
 Data…	Datos…
-Day and night shading for a time.	Sombreado de día y noche para una hora.
+Day and night shading for a time.	Sombreado de día y noche en un momento dado.
 Decline	Rechazar
 Deep Learning	Aprendizaje profundo
 Deep Learning\nTools	Herramientas de\naprendizaje profundo
@@ -730,8 +731,8 @@ Groups	Grupos
 Guided analysis: suitability, visibility, networks, interpolation and more.	Análisis guiado: idoneidad, visibilidad, redes, interpolación y más.
 Halo	Halo
 Harbour (qualitative)	Puerto (cualitativa)
-Haze	Calima
-Haze, fog, rain or snow over the map.	Calima, niebla, lluvia o nieve sobre el mapa.
+Haze	Bruma
+Haze, fog, rain or snow over the map.	Bruma, niebla, lluvia o nieve sobre el mapa.
 Height	Altura
 Height (mm)	Altura (mm)
 Help	Ayuda
@@ -739,14 +740,14 @@ Help › Help	Ayuda › Ayuda
 Hexagons	Hexágonos
 Hide	Ocultar
 Hide features far from the view's centre.	Ocultar las entidades alejadas del centro de la vista.
-Hide labels when the viewer is closer than this.	Ocultar las etiquetas cuando el observador esté más cerca que esto.
-Hide labels when the viewer is farther than this.	Ocultar las etiquetas cuando el observador esté más lejos que esto.
+Hide labels when the viewer is closer than this.	Ocultar las etiquetas cuando el observador esté más cerca que este valor.
+Hide labels when the viewer is farther than this.	Ocultar las etiquetas cuando el observador esté más lejos que este valor.
 Hide walls facing away from you.	Ocultar las paredes orientadas en sentido contrario.
 High values of the first raster and low values of the second score best.	Los valores altos del primer ráster y bajos del segundo puntúan mejor.
 Histogram Equalize	Ecualizar histograma
 Histograms and correlations	Histogramas y correlaciones
 History	Historial
-Hold	Mantener
+Hold	Retener
 Home	Inicio
 Home › Add	Inicio › Añadir
 Homepage	Página principal
@@ -777,6 +778,7 @@ Import Thumbnail	Importar miniatura
 Import Web Tool	Importar herramienta web
 In Beyond	Límite al acercar
 In Progress	En curso
+In RustGIS, it can:	En RustGIS, puede:
 in progress	en curso
 In project	En el proyecto
 In use	En uso
@@ -805,6 +807,7 @@ Installed	Instalado
 Installed plugins are kept in {folder}	Los complementos instalados se guardan en {folder}
 Installed with Homebrew, winget, the AUR or COPR? Update it there.	¿Lo instaló con Homebrew, winget, AUR o COPR? Actualícelo desde ahí.
 Installed {name} {version}. Find it on the Plugins tab; its tools are also in the Tools pane.	Se ha instalado {name} {version}. Lo encontrará en la pestaña Complementos; sus herramientas también están en el panel Herramientas.
+Installing it downloads Python {version} and the packages it needs from the internet.	Al instalarlo se descargan de internet Python {version} y los paquetes que necesita.
 Interface font: {font}	Fuente de la interfaz: {font}
 Interpolate a surface from points (IDW)	Interpolar una superficie a partir de puntos (IDW)
 Invalid: {error}	No válida: {error}
@@ -812,6 +815,7 @@ Invert	Invertir
 Invert color scheme	Invertir esquema de color
 Invert the selection.	Invertir la selección.
 IS NULL	IS NULL
+It runs: {program}	Ejecuta: {program}
 it connects to an address on the internet	se conecta a una dirección de internet
 it is reserved to you (plugins, scripts, tasks, models and the GeoLibre runner)	está reservado para usted (complementos, scripts, tareas, modelos y el ejecutor de GeoLibre)
 it reads or writes files on this computer	lee o escribe archivos en este equipo
@@ -915,7 +919,7 @@ Lock	Bloquear
 Long	Entero largo
 Longitude	Longitud
 Longitude (X)	Longitud (X)
-Lower Priority	Prioridad más baja
+Lower Priority	Bajar prioridad
 Magnifier	Lupa
 Major Lakes	Lagos principales
 Major Rivers	Ríos principales
@@ -1070,6 +1074,7 @@ None. Add one by address, or from a basemap plugin.	Ninguna. Añada una por dire
 North	Norte
 North\nArrow	Flecha\nde norte
 North Polar Stereographic	Estereográfica polar norte
+Not sandboxed	Sin aislamiento
 not a RustGIS layout	no es un diseño de RustGIS
 not needed	no es necesaria
 Not saved yet	Aún no guardado
@@ -1173,7 +1178,7 @@ Paste Special (as a new layer)	Pegado especial (como capa nueva)
 paste your key	pegue su clave
 Pause	Pausar
 PDF or PNG	PDF o PNG
-Percent Clip	Recorte de porcentaje
+Percent Clip	Recorte porcentual
 Performance	Rendimiento
 Picture	Imagen
 Pictures	Imágenes
@@ -1201,6 +1206,7 @@ PMTiles archive	Archivo PMTiles
 PMTiles File…	Archivo PMTiles…
 PNG frames (zip)	Fotogramas PNG (zip)
 PNG image	Imagen PNG
+Plugins marked Not sandboxed run as programs on your computer instead, and can do anything you can.	Los complementos marcados como «Sin aislamiento» se ejecutan, en cambio, como programas en su equipo y pueden hacer todo lo que usted puede.
 Point	Punto
 Points	Puntos
 points each	puntos cada uno
@@ -1211,6 +1217,7 @@ Polygon (draw)	Polígono (dibujar)
 Polygons	Polígonos
 Polyline	Polilínea
 Pop-up Mode	Modo de ventana emergente
+Prepare	Preparar
 pop_max > 1000000	pop_max > 1000000
 Populated Places	Lugares poblados
 Portal	Portal
@@ -1218,6 +1225,7 @@ Portrait	Vertical
 Postprocessing	Posprocesamiento
 power 2	potencia 2
 Prepare every layer's geometry for this projection.	Preparar la geometría de cada capa para esta proyección.
+Preparing its Python environment…	Preparando su entorno de Python…
 Presentation	Presentación
 Presentation File	Archivo de presentación
 Presentation Pane	Panel Presentación
@@ -1256,6 +1264,9 @@ Proximity	Proximidad
 Publish	Publicar
 Publish › Output	Publicar › Salida
 Put the layer back as it was then	Devolver la capa al estado que tenía entonces
+Python environment failed: {error}	Error en el entorno de Python: {error}
+Python environment not prepared	Entorno de Python sin preparar
+Python environment ready	Entorno de Python listo
 Quantile	Cuantil
 Quick\nAccess	Acceso\nrápido
 Quick Access Toolbar	Barra de herramientas de acceso rápido
@@ -1287,7 +1298,7 @@ Redo	Rehacer
 Redo the change you undid.	Rehacer el cambio que deshizo.
 Redo {action}	Rehacer {action}
 Red–Blue	Rojo–Azul
-Refine the search to see {n} more	Refina la búsqueda para ver {n} más
+Refine the search to see {n} more	Refine la búsqueda para ver {n} más
 Refresh	Actualizar
 Refresh Map Series	Actualizar serie de mapas
 Refresh the map series from its index layer.	Actualizar la serie de mapas a partir de su capa de índice.
@@ -1640,6 +1651,7 @@ Text	Texto
 Text Symbol	Símbolo de texto
 The assistant is busy; stop it or wait for it to finish.	El asistente está ocupado; deténgalo o espere a que termine.
 The assistant wants to run this, and {why}:	El asistente quiere ejecutar lo siguiente, y {why}:
+This plugin runs as a program on your computer, outside RustGIS's sandbox. It can do anything you can: read and change your files, use the network and run other programs. Install it only if you trust its author.	Este complemento se ejecuta como un programa en su equipo, fuera del entorno aislado de RustGIS. Puede hacer todo lo que usted puede: leer y modificar sus archivos, usar la red y ejecutar otros programas. Instálelo solo si confía en su autor.
 the capture failed unexpectedly	la captura falló inesperadamente
 the Help tab always shows	la pestaña Ayuda siempre se muestra
 The job covers the map view	El trabajo cubre la vista del mapa
@@ -1828,7 +1840,7 @@ Z factor	Factor Z
 Zoom	Zoom
 Zoom about the pointer	Zoom alrededor del puntero
 Zoom Box	Zoom a rectángulo
-Zoom Frame	Marco de zoom
+Zoom Frame	Zoom en el marco
 Zoom In	Acercar
 Zoom in	Acercar
 Zoom in / out	Acercar / alejar
@@ -1853,6 +1865,8 @@ Zoom to the whole world.	Zoom a todo el mundo.
 Zoom to Tokyo	Hacer zoom a Tokio
 Zoom To World	Zoom al mundo
 {id} changed since it was installed; install it again from the Plugin Manager.	{id} ha cambiado desde que se instaló; vuelva a instalarlo desde el Administrador de complementos.
+{name} is larger than {mb} MB	{name} ocupa más de {mb} MB
+{name} runs as a program on your computer: it needs the desktop app or rustgis-cli.	{name} se ejecuta como un programa en su equipo: requiere la aplicación de escritorio o rustgis-cli.
 {name} was withdrawn from the plugin registry and has been turned off.	{name} se ha retirado del registro de complementos y se ha desactivado.
 {name} was withdrawn from the plugin registry: {reason}	{name} se ha retirado del registro de complementos: {reason}
 {name}: the download doesn't match the registry; it wasn't installed.	{name}: la descarga no coincide con el registro; no se ha instalado.
