@@ -205,6 +205,25 @@ pub fn status_bar(app: &mut RustGisApp, ui: &mut Ui) {
                     ui.label(egui::RichText::new(format!("{} ms", app.map.render_ms)).size(11.0).color(t.text_disabled))
                         .on_hover_text(tl!("Last map render time"));
                     sep(ui, &t);
+                    // The MCP relay: while it runs, an attached agent works in this session, so
+                    // its authenticated client count is shown and a click stops it. Desktop only.
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        if let Some(n) = app.relay.as_ref().map(|r| r.attached_clients()) {
+                            let resp = ui.add(
+                                egui::Label::new(
+                                    egui::RichText::new(crate::i18n::fmt("MCP relay · {n} attached", &[("n", &n.to_string())]))
+                                        .size(11.5)
+                                        .color(if n > 0 { t.accent_text } else { t.text_dim }),
+                                )
+                                .sense(Sense::click()),
+                            );
+                            if resp.on_hover_text(tl!("Stop MCP relay")).clicked() {
+                                let _ = app.run("ui.mcpRelay", json!({"stop": true}));
+                            }
+                            sep(ui, &t);
+                        }
+                    }
                     // Cut to the room left (the whole notice on hover), so a long one doesn't run
                     // over the selection count and coordinates.
                     if let Some(n) = app.session.notices.last() {

@@ -404,6 +404,10 @@ pub struct RustGisApp {
     /// a queued message asks for a repaint, or it waits for the user to move the mouse.
     #[cfg(not(target_arch = "wasm32"))]
     frame_ctx: Option<egui::Context>,
+    /// Set when `ui.mcpRelay` started the relay before the first frame, where there is no context
+    /// to give its wake callback yet: `logic` installs the wake as soon as a context exists.
+    #[cfg(not(target_arch = "wasm32"))]
+    relay_wake_pending: bool,
     /// Extra font faces installed with the interface fonts: (name, face, region). The current
     /// language's region comes right after the interface font, so its glyph shapes win; the others
     /// are last-resort fallbacks. Faces are shared, so reinstalling copies nothing.
@@ -453,6 +457,8 @@ impl RustGisApp {
             relay: None,
             #[cfg(not(target_arch = "wasm32"))]
             frame_ctx: None,
+            #[cfg(not(target_arch = "wasm32"))]
+            relay_wake_pending: false,
             extra_fonts: Vec::new(),
             installed_region: None,
             fonts_dirty: false,
@@ -1022,7 +1028,23 @@ impl RustGisApp {
             // asked. Running the command again reports its address; the app owns its lifetime.
             #[cfg(not(target_arch = "wasm32"))]
             "ui.mcpRelay" => {
-                if let Some(relay) = &self.relay {
+                if p.get("stop").and_then(Value::as_bool).unwrap_or(false) {
+                    // Idempotent: stopping an already stopped relay is not an error.
+                    if let Some(relay) = self.relay.take() {
+                        relay.stop();
+                        self.session.notify(tl!("MCP relay stopped").to_string(), false);
+                    }
+                } else if let Some(relay) = &self.relay {
+                    // A named port is a request to listen there; silently ignoring it would hide
+                    // the mistake, so it is refused with the way out instead of rebinding.
+                    if let Some(asked) = p.get("port").and_then(Value::as_u64).and_then(|n| u16::try_from(n).ok())
+                        && asked != relay.port()
+                    {
+                        return Err(i18n::fmt(
+                            "MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}",
+                            &[("port", &relay.port().to_string()), ("asked", &asked.to_string())],
+                        ));
+                    }
                     let text = i18n::fmt("MCP relay listening on 127.0.0.1:{port}", &[("port", &relay.port().to_string())]);
                     self.session.notify(text, false);
                 } else {
@@ -1031,20 +1053,19 @@ impl RustGisApp {
                         .and_then(Value::as_u64)
                         .and_then(|n| u16::try_from(n).ok())
                         .unwrap_or(rustgis_assistant::relay::DEFAULT_PORT);
-                    match rustgis_assistant::relay::Relay::start(port) {
-                        Ok(relay) => {
-                            // The relay only queues; the frame runs the messages, so a queued
-                            // message asks for the frame that will run it.
-                            if let Some(ctx) = &self.frame_ctx {
-                                let ctx = ctx.clone();
-                                relay.set_wake(Box::new(move || ctx.request_repaint()));
-                            }
-                            let text = i18n::fmt("MCP relay listening on 127.0.0.1:{port}", &[("port", &relay.port().to_string())]);
-                            self.session.notify(text, false);
-                            self.relay = Some(relay);
-                        }
-                        Err(e) => return Err(e),
+                    let relay = rustgis_assistant::relay::Relay::start(port)?;
+                    // The relay only queues; the frame runs the messages, so a queued message
+                    // asks for the frame that will run it. Before the first frame there is no
+                    // context yet; `logic` gives the relay its wake once one exists.
+                    if let Some(ctx) = &self.frame_ctx {
+                        let ctx = ctx.clone();
+                        relay.set_wake(Box::new(move || ctx.request_repaint()));
+                    } else {
+                        self.relay_wake_pending = true;
                     }
+                    let text = i18n::fmt("MCP relay listening on 127.0.0.1:{port}", &[("port", &relay.port().to_string())]);
+                    self.session.notify(text, false);
+                    self.relay = Some(relay);
                 }
             }
             "ui.plugins" => {
@@ -2005,6 +2026,13 @@ impl RustGisApp {
         {
             self.frame_ctx = Some(ctx.clone());
             if let Some(relay) = &self.relay {
+                // A relay started before the first frame has no wake yet; now there is a context
+                // to ask for repaints with.
+                if self.relay_wake_pending {
+                    let ctx = ctx.clone();
+                    relay.set_wake(Box::new(move || ctx.request_repaint()));
+                    self.relay_wake_pending = false;
+                }
                 relay.poll(&mut self.session);
             }
         }

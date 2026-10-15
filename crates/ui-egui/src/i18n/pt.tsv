@@ -1867,3 +1867,6 @@ Zoom To World	Zoom para o mundo
 MCP Relay	Relé MCP
 MCP relay stopped	Relé MCP parado
 MCP relay listening on 127.0.0.1:{port}	Relé MCP a ouvir em 127.0.0.1:{port}
+MCP relay · {n} attached	Relé MCP · {n} ligados
+Stop MCP relay	Parar o relé MCP
+MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	O relé MCP já está a ouvir em 127.0.0.1:{port}; pare-o primeiro para usar a porta {asked}

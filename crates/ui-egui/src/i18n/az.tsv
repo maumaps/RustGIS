@@ -1867,3 +1867,6 @@ Zoom To World	Dünyaya yaxınlaşdır
 MCP Relay	MCP Relay
 MCP relay stopped	MCP rely dayandırıldı
 MCP relay listening on 127.0.0.1:{port}	MCP rely 127.0.0.1:{port} ünvanında dinləyir
+MCP relay · {n} attached	MCP rely · {n} qoşulub
+Stop MCP relay	MCP relyni dayandır
+MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	MCP rely artıq 127.0.0.1:{port} ünvanında dinləyir; {asked} portunu istifadə etmək üçün əvvəlcə dayandırın

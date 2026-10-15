@@ -1867,3 +1867,6 @@ Zoom To World	Thu phóng tới thế giới
 MCP Relay	Chuyển tiếp MCP
 MCP relay stopped	Đã dừng chuyển tiếp MCP
 MCP relay listening on 127.0.0.1:{port}	Chuyển tiếp MCP đang nghe tại 127.0.0.1:{port}
+MCP relay · {n} attached	Chuyển tiếp MCP · {n} đã kết nối
+Stop MCP relay	Dừng chuyển tiếp MCP
+MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	Chuyển tiếp MCP đang nghe tại 127.0.0.1:{port}; hãy dừng trước để dùng cổng {asked}

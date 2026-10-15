@@ -1867,3 +1867,6 @@ Zoom To World	세계로 확대/축소
 MCP Relay	MCP 릴레이
 MCP relay stopped	MCP 릴레이 중지됨
 MCP relay listening on 127.0.0.1:{port}	MCP 릴레이가 127.0.0.1:{port}에서 대기 중
+MCP relay · {n} attached	MCP 릴레이 · {n} 연결됨
+Stop MCP relay	MCP 릴레이 중지
+MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	MCP 릴레이가 이미 127.0.0.1:{port}에서 대기 중입니다. 포트 {asked}를 쓰려면 먼저 중지하세요

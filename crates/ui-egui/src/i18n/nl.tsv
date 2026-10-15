@@ -1867,3 +1867,6 @@ Zoom To World	Zoomen naar wereld
 MCP Relay	MCP-relay
 MCP relay stopped	MCP-relay gestopt
 MCP relay listening on 127.0.0.1:{port}	MCP-relay luistert op 127.0.0.1:{port}
+MCP relay · {n} attached	MCP-relay · {n} verbonden
+Stop MCP relay	MCP-relay stoppen
+MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	MCP-relay luistert al op 127.0.0.1:{port}; stop hem eerst om poort {asked} te gebruiken

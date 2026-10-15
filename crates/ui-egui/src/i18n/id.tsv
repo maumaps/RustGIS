@@ -1867,3 +1867,6 @@ Zoom To World	Zoom ke Dunia
 MCP Relay	Relay MCP
 MCP relay stopped	Relay MCP dihentikan
 MCP relay listening on 127.0.0.1:{port}	Relay MCP mendengarkan di 127.0.0.1:{port}
+MCP relay · {n} attached	Relay MCP · {n} terhubung
+Stop MCP relay	Hentikan Relay MCP
+MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	Relay MCP sudah mendengarkan di 127.0.0.1:{port}; hentikan dulu untuk memakai port {asked}

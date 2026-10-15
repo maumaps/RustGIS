@@ -1867,3 +1867,6 @@ Zoom To World	Dünyaya Yakınlaştır
 MCP Relay	MCP rölesi
 MCP relay stopped	MCP rölesi durduruldu
 MCP relay listening on 127.0.0.1:{port}	MCP rölesi 127.0.0.1:{port} adresinde dinliyor
+MCP relay · {n} attached	MCP rölesi · {n} bağlı
+Stop MCP relay	MCP rölesini durdur
+MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	MCP rölesi zaten 127.0.0.1:{port} adresinde dinliyor; {asked} portunu kullanmak için önce durdurun

@@ -209,17 +209,7 @@ fn attach_port(args: &[String]) -> Result<Option<u16>, String> {
 fn attach(port: u16, allow_access: bool) -> Result<(), String> {
     // The relay wrote the run's token where only this user can read it; carrying it in the
     // attach message is what proves this is the user's own client, so nothing is pasted.
-    let token_path = rustgis_assistant::relay::token_path(port);
-    let token = std::fs::read_to_string(&token_path)
-        .map_err(|e| format!("{}: {e}; start RustGIS's MCP Relay command first", token_path.display()))?
-        .lines()
-        .map(str::trim)
-        .find(|l| !l.is_empty())
-        .unwrap_or_default()
-        .to_string();
-    if token.is_empty() {
-        return Err(format!("{} holds no token; restart RustGIS's MCP Relay command", token_path.display()));
-    }
+    let token = rustgis_assistant::relay::read_token(port)?;
     let mut stream = std::net::TcpStream::connect(("127.0.0.1", port))
         .map_err(|e| format!("nothing is listening on 127.0.0.1:{port} ({e}); start RustGIS's MCP Relay command first"))?;
     let hello = json!({"jsonrpc": "2.0", "method": "rustgis/attach", "params": {"access": allow_access, "token": token}});
@@ -232,11 +222,11 @@ fn attach(port: u16, allow_access: bool) -> Result<(), String> {
     let mut stdin = std::io::stdin().lock();
     let mut stdout = std::io::stdout().lock();
     loop {
-        let line = match read_message(&mut stdin) {
+        let line = match rustgis_assistant::framing::read_message(&mut stdin, rustgis_assistant::framing::Oversize::Skip) {
             Ok(Some(line)) => line,
             Ok(None) => break,
             Err(why) => {
-                let e = json!({"jsonrpc": "2.0", "id": Value::Null, "error": {"code": -32700, "message": why}});
+                let e = json!({"jsonrpc": "2.0", "id": Value::Null, "error": {"code": -32700, "message": read_error(why, "reading standard input")}});
                 let _ = writeln!(stdout, "{e}").and_then(|()| stdout.flush());
                 continue;
             }
@@ -248,7 +238,7 @@ fn attach(port: u16, allow_access: bool) -> Result<(), String> {
         if !rustgis_assistant::mcp::expects_reply(&line) {
             continue;
         }
-        let reply = match read_message(&mut input) {
+        let reply = match rustgis_assistant::framing::read_message(&mut input, rustgis_assistant::framing::Oversize::Stop) {
             Ok(Some(reply)) => reply,
             Ok(None) => return Err("the RustGIS app closed the relay".into()),
             Err(why) => return Err(format!("the app's reply: {why}")),
@@ -258,32 +248,13 @@ fn attach(port: u16, allow_access: bool) -> Result<(), String> {
     Ok(())
 }
 
-/// Reads one JSON-RPC message (a line): `Ok(None)` at the end of the input, the message itself,
-/// or `Err(why)` for one too long or not UTF-8 (its line is skipped first).
-fn read_message(input: &mut impl std::io::BufRead) -> Result<Option<String>, String> {
-    use std::io::{BufRead, Read};
-    // The longest message read (a project's JSON can be large); longer lines are refused.
-    const MAX_LINE: u64 = 64 * 1024 * 1024;
-    let mut buf = Vec::new();
-    let n = input.by_ref().take(MAX_LINE + 1).read_until(b'\n', &mut buf).map_err(|e| format!("reading standard input: {e}"))?;
-    if n == 0 {
-        return Ok(None);
-    }
-    if buf.len() as u64 > MAX_LINE && buf.last() != Some(&b'\n') {
-        // Skip the rest of the line, then say why it wasn't read.
-        loop {
-            buf.clear();
-            let m = input.by_ref().take(MAX_LINE).read_until(b'\n', &mut buf).map_err(|e| format!("reading standard input: {e}"))?;
-            if m == 0 || buf.last() == Some(&b'\n') {
-                break;
-            }
-        }
-        return Err("message too long (64 MB at most)".into());
-    }
-    // Messages are UTF-8; a bad byte could change a path inside one, so it isn't guessed at.
-    match std::str::from_utf8(&buf) {
-        Ok(line) => Ok(Some(line.to_string())),
-        Err(_) => Err("message is not UTF-8".into()),
+/// The complaint for a message that could not be read: the protocol's own words about the
+/// message, or the failing reader named by its caller (the framing helper's I/O text is
+/// neutral and names no source).
+fn read_error(why: rustgis_assistant::framing::Error, source: &str) -> String {
+    match why {
+        rustgis_assistant::framing::Error::Io(e) => format!("{source}: {e}"),
+        other => other.to_string(),
     }
 }
 
@@ -313,11 +284,11 @@ fn mcp(s: &mut Session, args: &[String]) -> Result<(), String> {
             let e = json!({"jsonrpc": "2.0", "id": Value::Null, "error": {"code": -32700, "message": why}});
             writeln!(stdout, "{e}").and_then(|()| stdout.flush()).is_ok()
         };
-        let line = match read_message(&mut stdin) {
+        let line = match rustgis_assistant::framing::read_message(&mut stdin, rustgis_assistant::framing::Oversize::Skip) {
             Ok(Some(line)) => line,
             Ok(None) => break,
             Err(why) => {
-                if !refuse(&mut stdout, &why) {
+                if !refuse(&mut stdout, &read_error(why, "reading standard input")) {
                     break;
                 }
                 continue;
