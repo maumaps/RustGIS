@@ -308,7 +308,7 @@ fn plugins_can_have_a_tab_of_their_own() {
     h.get_by_label("Tab Select").click();
     h.step();
     assert_eq!(h.state().gp.tool, Some("plugin:ui-tab/x"));
-    // Hidden, then shown again, from Help › Ribbon.
+    // Hidden, then shown again, from Settings › Customize › Ribbon.
     h.state_mut().run("ui.customizeRibbon", json!({"tab": "plugin:ui-tab"})).unwrap();
     h.step();
     assert!(h.state().ui.hidden_tabs.contains(&"plugin:ui-tab".to_string()));
@@ -485,6 +485,20 @@ fn old_and_unknown_tab_names_open_a_current_tab() {
     }
 }
 
+/// Settings holds Customize › Ribbon, so it (like Help) can't be hidden.
+#[test]
+fn settings_and_help_tabs_always_show() {
+    let mut h = harness();
+    for tab in ["Settings", "Help"] {
+        assert!(h.state_mut().run("ui.customizeRibbon", json!({"tab": tab})).is_err(), "{tab}");
+    }
+    h.state_mut().run("ui.customizeRibbon", json!({"tab": "Edit"})).unwrap();
+    assert_eq!(h.state().ui.hidden_tabs, vec!["Edit".to_string()]);
+    h.state_mut().ui.tab = "Settings".into();
+    h.step();
+    h.step();
+}
+
 /// Add Delimited Text in the web app with a script's options: they go with the file picked next
 /// (and only that one), so a projected CSV lands in place.
 #[test]
@@ -590,6 +604,102 @@ fn data_from_a_web_address_lands_later() {
     assert!(h.state().session.map().layer_by_name("Pin").is_some());
     assert!(h.state().session.notices.iter().any(|n| n.error && n.text.contains("never fetched")));
     assert!(h.state().ui.downloads.is_empty());
+}
+
+/// A project by its web address (a `?project=` link) downloads off the frame and replaces the
+/// open project when it lands, its layers and view with it; a failed download is said and keeps
+/// the open project.
+#[test]
+fn a_project_from_a_web_address_opens_when_it_lands() {
+    use std::io::{Read, Write};
+    let mut h = harness();
+    h.step();
+    let mut shared = h.state().session.project.clone();
+    shared.name = "Shared map".into();
+    let layers = shared.map().layers.len();
+    let body = serde_json::to_string(&shared).unwrap().into_bytes();
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let addr = listener.local_addr().unwrap();
+    std::thread::spawn(move || {
+        for stream in listener.incoming().take(1) {
+            let Ok(mut s) = stream else { continue };
+            let mut buf = [0u8; 2048];
+            let _ = s.read(&mut buf);
+            let _ = write!(s, "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", body.len());
+            let _ = s.write_all(&body);
+        }
+    });
+    h.state_mut().run("project.new", json!({})).unwrap();
+    assert!(h.state_mut().run("ui.openUrl", json!({})).is_err());
+    // An API's address, without the extension, is still read as a project.
+    h.state_mut().run("ui.openUrl", json!({"url": format!("http://{addr}/maps/7/project?v=2")})).unwrap();
+    for _ in 0..100 {
+        h.step();
+        if h.state().session.project.name == "Shared map" {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert_eq!(h.state().session.project.name, "Shared map");
+    assert_eq!(h.state().session.map().layers.len(), layers);
+    assert!(h.state().ui.project_download.is_none());
+    h.state_mut().run("ui.openUrl", json!({"url": "http://169.254.169.254/a.rgis"})).unwrap();
+    h.step();
+    assert!(h.state().session.notices.iter().any(|n| n.error && n.text.contains("never fetched")));
+    assert_eq!(h.state().session.project.name, "Shared map");
+}
+
+/// A project still downloading when another project is opened doesn't replace it; a pending item
+/// picker isn't taken by the download either.
+#[test]
+fn a_late_project_download_leaves_the_newer_project_and_the_picker_alone() {
+    use std::io::{Read, Write};
+    let mut h = harness();
+    h.step();
+    let mut shared = h.state().session.project.clone();
+    shared.name = "Late map".into();
+    let body = serde_json::to_string(&shared).unwrap().into_bytes();
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let addr = listener.local_addr().unwrap();
+    let (go, wait) = std::sync::mpsc::channel::<()>();
+    std::thread::spawn(move || {
+        for stream in listener.incoming().take(2) {
+            let Ok(mut s) = stream else { continue };
+            let mut buf = [0u8; 2048];
+            let _ = s.read(&mut buf);
+            // the first answer waits until the test has opened another project
+            let _ = wait.recv_timeout(std::time::Duration::from_secs(5));
+            let _ = write!(s, "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", body.len());
+            let _ = s.write_all(&body);
+        }
+    });
+    h.state_mut().run("ui.openUrl", json!({"url": format!("http://{addr}/late.rgis")})).unwrap();
+    h.state_mut().run("project.new", json!({})).unwrap();
+    let newer = h.state().session.project.name.clone();
+    go.send(()).unwrap();
+    for _ in 0..100 {
+        h.step();
+        if h.state().ui.project_download.is_none() {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert!(h.state().ui.project_download.is_none());
+    assert_eq!(h.state().session.project.name, newer);
+    assert!(h.state().session.notices.iter().any(|n| n.text.contains("after another project was opened")));
+    // With an item picker waiting, a downloaded project opens as a project and the picker keeps waiting.
+    h.state_mut().ui.pending_open = Some("style.add");
+    let _ = go.send(());
+    h.state_mut().run("ui.openUrl", json!({"url": format!("http://{addr}/late.rgis")})).unwrap();
+    for _ in 0..100 {
+        h.step();
+        if h.state().session.project.name == "late" {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+    assert_eq!(h.state().session.project.name, "late");
+    assert_eq!(h.state().ui.pending_open, Some("style.add"));
 }
 
 /// Add From Service connects in the background and lists the service's layers in the dialog.

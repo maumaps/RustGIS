@@ -1884,3 +1884,5 @@ MCP relay listening on 127.0.0.1:{port}	Relay MCP mendengarkan di 127.0.0.1:{por
 MCP relay · {n} attached	Relay MCP · {n} terhubung
 Stop MCP relay	Hentikan Relay MCP
 MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	Relay MCP sudah mendengarkan di 127.0.0.1:{port}; hentikan dulu untuk memakai port {asked}
+Opening {url}…	Membuka {url}…
+{url}: downloaded after another project was opened, so it wasn't opened	{url}: diunduh setelah proyek lain dibuka, jadi tidak dibuka

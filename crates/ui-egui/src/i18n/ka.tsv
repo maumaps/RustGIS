@@ -1884,3 +1884,5 @@ MCP relay listening on 127.0.0.1:{port}	MCP რელე უსმენს 127.
 MCP relay · {n} attached	MCP რელე · {n} დაკავშირებული
 Stop MCP relay	MCP რელეს გაჩერება
 MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	MCP რელე უკვე უსმენს 127.0.0.1:{port}-ს; ჯერ გააჩერეთ, რომ გამოიყენოთ პორტი {asked}
+Opening {url}…	{url} იხსნება…
+{url}: downloaded after another project was opened, so it wasn't opened	{url}: ჩამოიტვირთა სხვა პროექტის გახსნის შემდეგ, ამიტომ არ გაიხსნა

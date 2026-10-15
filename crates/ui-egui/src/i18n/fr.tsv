@@ -1884,3 +1884,5 @@ MCP relay listening on 127.0.0.1:{port}	Relais MCP à l'écoute sur 127.0.0.1:{p
 MCP relay · {n} attached	Relais MCP · {n} connectés
 Stop MCP relay	Arrêter le relais MCP
 MCP relay is already listening on 127.0.0.1:{port}; stop it first to use port {asked}	Le relais MCP écoute déjà sur 127.0.0.1:{port} ; arrêtez-le d'abord pour utiliser le port {asked}
+Opening {url}…	Ouverture de {url}…
+{url}: downloaded after another project was opened, so it wasn't opened	{url} : téléchargé après l’ouverture d’un autre projet, il n’a donc pas été ouvert
