@@ -187,8 +187,8 @@ Your agent asks you before each tool call, and the server adds its own limits:
   gave the server and with the built-in sample, basemaps and geoprocessing. `view_map` draws
   the web tile layers the project you opened already has, fetching their tiles.
 - Plugin management, scripts, tasks, models and the GeoLibre runner are never run from here.
-- Opening, replacing and undoing in the project are allowed: the project is the agent's own,
-  not the one open in the desktop app.
+- In private-server mode, opening, replacing and undoing in the project are allowed: the project
+  is the agent's own. With `--attach`, these operations affect the project open in the desktop app.
 
 Installed [plugins](plugins.md) load first, as with the other subcommands (`--no-plugins` skips
 them). Notes such as "MCP server ready" go to standard error; standard output carries only the

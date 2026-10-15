@@ -98,6 +98,8 @@ struct Shared {
 }
 
 impl Shared {
+    /// Wakes the UI thread so it draws a frame to run queued messages or repaint the client
+    /// count. Does nothing when the app never set a callback with [`Relay::set_wake`].
     fn notify(&self) {
         if let Some(wake) = lock(&self.wake).as_ref() {
             wake();
@@ -130,6 +132,8 @@ struct Owner {
 }
 
 impl Drop for Owner {
+    /// Stops the relay when its last owner drops: the listener closes, clients disconnect,
+    /// queued requests are cancelled unrun, and the token file is removed.
     fn drop(&mut self) {
         self.shared.shutdown();
     }
@@ -277,6 +281,8 @@ fn write_token_file(port: u16, token: &str) -> Result<PathBuf, String> {
     Ok(path)
 }
 
+/// Locks a relay mutex, recovering the contents when a previous holder panicked: a poisoned
+/// mutex would otherwise stop the listener, so the relay keeps its guarded state and runs on.
 fn lock<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
     m.lock().unwrap_or_else(|e| e.into_inner())
 }
@@ -407,6 +413,8 @@ struct Slot {
 }
 
 impl Drop for Slot {
+    /// Releases the connection's place in the limits, removes its socket, and repaints the
+    /// client count if it had attached.
     fn drop(&mut self) {
         lock(&self.shared.streams).remove(&self.id);
         if self.preauth {
@@ -466,6 +474,8 @@ struct Handshake {
 }
 
 impl Read for Handshake {
+    /// Reads under the handshake deadline (or [`IDLE_TIMEOUT`] once attached), so a slow client
+    /// cannot hold a connection open byte by byte; an expired deadline surfaces as a timeout.
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         let wait = match self.deadline {
             Some(deadline) => deadline

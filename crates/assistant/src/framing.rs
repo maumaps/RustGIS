@@ -27,6 +27,8 @@ pub enum Error {
 }
 
 impl std::fmt::Display for Error {
+    /// Renders the protocol complaints verbatim for the client; [`Error::Io`] keeps the
+    /// reader's neutral text so the caller can name the source.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::Io(e) => write!(f, "{e}"),
